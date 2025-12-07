@@ -41,7 +41,7 @@ OSWE CUSTOM LABS AND PREPARATION MASTER GUIDE
 go to the folder where there is php.py and run python3 php.py http://localhost/vulnerable_login.php change the payload in return to the magic hash password you want 
 ```bash
 
-def php_magic_bytes():
+def php_magic_hashes():
 	print("[+] Returning php magic hashes whose md5 evaluate to 0")
 	return "aabg7XSs"
 ```
