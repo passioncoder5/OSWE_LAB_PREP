@@ -30,13 +30,12 @@ OSWE CUSTOM LABS AND PREPARATION MASTER GUIDE
 4. **Update PHP Config**
    Inside your PHP connection file (e.g., `config.php`):
 
-   ```bash
+```php
    // Database configuration
   define('DB_HOST', 'localhost');
   define('DB_USER', 'root');
   define('DB_PASS', '');
   define('DB_NAME', 'type_juggling_lab');
-   ```
 ```
 
 go to the folder where there is php.py and run python3 php.py http://localhost/vulnerable_login.php change the payload in return to the magic hash password you want 
