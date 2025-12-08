@@ -8,6 +8,29 @@ OSWE CUSTOM LABS AND PREPARATION MASTER GUIDE
    ```bash
    sudo /opt/lampp/lampp start
    ```
+# 🐧 LAMPP GUI Method
+
+## **Start with GUI:**
+```bash
+cd /opt/lampp
+sudo ./manager-linux-x64.run
+```
+
+## **What it does:**
+- Opens visual control panel
+- Shows service status (Apache, MySQL)
+- Click buttons to start/stop services
+
+## **After starting:**
+- Website: `http://localhost`
+- phpMyAdmin: `http://localhost/phpmyadmin`
+- Files go in: `/opt/lampp/htdocs/`
+
+## **To stop:**
+- Click "Stop" in GUI
+- Or terminal: `sudo /opt/lampp/lampp stop`
+
+**Easier than command line, same result.**
 
 2. **Copy PHP Files**
 
@@ -56,6 +79,29 @@ def php_magic_hashes():
 ```bash
 sudo /opt/lampp/lampp start
 ```
+# 🐧 LAMPP GUI Method
+
+## **Start with GUI:**
+```bash
+cd /opt/lampp
+sudo ./manager-linux-x64.run
+```
+
+## **What it does:**
+- Opens visual control panel
+- Shows service status (Apache, MySQL)
+- Click buttons to start/stop services
+
+## **After starting:**
+- Website: `http://localhost`
+- phpMyAdmin: `http://localhost/phpmyadmin`
+- Files go in: `/opt/lampp/htdocs/`
+
+## **To stop:**
+- Click "Stop" in GUI
+- Or terminal: `sudo /opt/lampp/lampp stop`
+
+**Easier than command line, same result.**
 
 ### 2. **Import Database**
 #### **Method A: Using phpMyAdmin**
@@ -64,12 +110,6 @@ sudo /opt/lampp/lampp start
 3. Select the new database, go to **Import** tab
 4. Browse and upload `setup.sql`
 5. Click **Go** to execute
-
-#### **Method B: Using MySQL Command Line**
-```bash
-mysql -u root -p < setup.sql
-```
-When prompted for password, press Enter (default XAMPP has no root password)
 
 ### 3. **Deploy Web Application**
 ```bash
