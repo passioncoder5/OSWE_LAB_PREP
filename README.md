@@ -8,6 +8,8 @@ OSWE CUSTOM LABS AND PREPARATION MASTER GUIDE
 
 [blind-sqli](https://hub.docker.com/repository/docker/aravindaakumar/oswe-sqli-lab/general)
 
+[java-deserialization-lab](https://hub.docker.com/repository/docker/aravindaakumar/oswe-deserialization-lab/general)
+
 # Topic: php type juggling custom lab for OSWE
 # 🐧 LAMPP (Linux)
 
